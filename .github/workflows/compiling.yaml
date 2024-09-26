@@ -1,0 +1,50 @@
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{matrix.os}}
+    steps:
+      - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+
+      - name: build
+        run: |
+          cd src/pairwriter_helper 
+          python3 os_specific_compile.py
+
+      - name: add changes
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add -A 
+          git push -u origin ${{matrix.os}}-prerelease
+
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+
+      - name: merge
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git pull 
+          git checkout releases
+          git merge ubuntu-latest-prerelease
+          git merge macos-latest-prerelease
+          git merge windows-latest-prerelease
+          git push origin releases
