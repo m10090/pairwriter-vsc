@@ -54,12 +54,11 @@ jobs:
 
       - name: Merge Changes
         run: |
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/releases
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git fetch
           git branch -r
-          git checkout releases || git checkout -b releases
+          git checkout -B releases
           git merge origin/ubuntu-latest-prereleasee || echo "No changes to merge"
           git merge origin/macos-latest-prerelease || echo "No changes to merge"
           git merge origin/windows-latest-prerelease || echo "No changes to merge"
