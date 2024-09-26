@@ -33,14 +33,12 @@ jobs:
 
       - name: Build
         run: |
-          set -x
           cd src/pairwriter_helper 
           npm install
           python3 os_specific_compile.py
 
       - name: Add Changes
         run: |
-          set -x
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add -A 
@@ -56,7 +54,6 @@ jobs:
 
       - name: Merge Changes
         run: |
-          set -x
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git checkout releases || git checkout -b releases
@@ -72,7 +69,6 @@ jobs:
     steps:
       - name: Remove windows
         run: |
-          set +x
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease
