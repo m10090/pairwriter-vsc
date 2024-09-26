@@ -17,7 +17,7 @@ def compile():
         os.system("npm run postcargo-build")
         platform = targets[target]
         os.system(f"mv index.node ./platforms/{platform}/index.node")
-        return 
+        return
 
     # macos x64
 
@@ -31,15 +31,14 @@ def compile():
             os.system(f"mv index.node ./platforms/{platform}/index.node")
         return
     # linux x64
-    if os.uname().sysname == "Linux":
-        for target in ["x86_64-unknown-linux-gnu", "i686-unknown-linux-gnu"]:
-            os.system(
-                f"cross build --target {target} --message-format=json -r> cargo.log"
-            )
-            os.system("npm run postcross-build")
-            platform = targets[target]
-            os.system(f"mv index.node ./platforms/{platform}/index.node")
-        return
+    for target in ["x86_64-unknown-linux-gnu", "i686-unknown-linux-gnu"]:
+        os.system(
+            f"cross build --target {target} --message-format=json -r> cross.log"
+        )
+        os.system("npm run postcross-build")
+        platform = targets[target]
+        os.system(f"mv index.node ./platforms/{platform}/index.node")
+    return
 
 
 compile()

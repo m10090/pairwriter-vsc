@@ -58,8 +58,9 @@ jobs:
           git config user.email "action@github.com"
           git fetch
           git branch -r
+          git branch -D releases
           git checkout releases || git checkout -b releases
-          git merge origin/ubuntu-latest-prerelease || echo "No changes to merge"
+          git merge origin/ubuntu-latest-prereleasee || echo "No changes to merge"
           git merge origin/macos-latest-prerelease || echo "No changes to merge"
           git merge origin/windows-latest-prerelease || echo "No changes to merge"
           git push origin releases -f
@@ -74,3 +75,4 @@ jobs:
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease
+          echo "okay"
