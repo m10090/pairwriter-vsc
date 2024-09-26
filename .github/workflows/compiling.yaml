@@ -59,7 +59,7 @@ jobs:
           git fetch
           git branch -r
           git checkout -B releases
-          git merge origin/ubuntu-latest-prereleasee || echo "No changes to merge"
+          git merge origin/ubuntu-latest-prerelease || echo "No changes to merge"
           git merge origin/macos-latest-prerelease || echo "No changes to merge"
           git merge origin/windows-latest-prerelease || echo "No changes to merge"
           git push origin releases -f
