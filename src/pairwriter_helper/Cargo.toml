@@ -1,0 +1,3 @@
+[workspace]
+members = ["crates/pairwriter_helper"]
+resolver = "2"
