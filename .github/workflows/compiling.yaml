@@ -5,46 +5,43 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
     steps:
-      - env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-
-      - name: build
+      - name: Build
         run: |
           cd src/pairwriter_helper 
           python3 os_specific_compile.py
 
-      - name: add changes
+      - name: Add Changes
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add -A 
-          git push -u origin ${{matrix.os}}-prerelease
+          git push -u origin ${{ matrix.os }}-prerelease
 
   merge:
     runs-on: ubuntu-latest
     steps:
-      - env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-
-      - name: merge
+      - name: Merge Changes
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git pull 
-          git checkout releases
-          git merge ubuntu-latest-prerelease
-          git merge macos-latest-prerelease
-          git merge windows-latest-prerelease
+          git checkout releases || git checkout -b releases
+          git pull origin releases
+          git merge ubuntu-latest-prerelease || echo "No changes to merge"
+          git merge macos-latest-prerelease || echo "No changes to merge"
+          git merge windows-latest-prerelease || echo "No changes to merge"
           git push origin releases
