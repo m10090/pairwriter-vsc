@@ -2,7 +2,10 @@ on:
   push:
     branches:
       - main
-
+    tags: 
+      - release
+name: Pre-deploy Deploy Extension
+  
 permissions:
   contents: write
 
@@ -20,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: tool-chain for macos
+      - name: toolchain for macos
         if : ${{ matrix.os == 'macos-latest' }}
         run: |
           rustup target add x86_64-apple-darwin
@@ -58,11 +61,11 @@ jobs:
           git config user.email "action@github.com"
           git fetch
           git branch -r
-          git checkout -B releases
-          git merge origin/ubuntu-latest-prerelease || echo "No changes to merge"
-          git merge origin/macos-latest-prerelease || echo "No changes to merge"
-          git merge origin/windows-latest-prerelease || echo "No changes to merge"
-          git push origin releases -f
+          git checkout -B release
+          git merge origin/ubuntu-latest-prerelease
+          git merge origin/macos-latest-prerelease
+          git merge origin/windows-latest-prerelease
+          git push origin release -f
 
   remove-artifacts:
     needs: merge
@@ -71,7 +74,7 @@ jobs:
     steps:
       - name: Remove windows
         run: |
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease || echo "failed to delete"
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease || echo "failed to delete"
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease || echo "failed to delete" 
           echo "okay"
