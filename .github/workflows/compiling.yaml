@@ -3,6 +3,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 env:
   CARGO_TERM_COLOR: always
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -17,6 +20,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: tool-chain for macos
+        if : ${{ matrix.os == 'macos-latest' }}
+        run: |
+          rustup target add x86_64-apple-darwin
+      
+      - name: toolchain for linux
+        if : ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          cargo install cross --git https://github.com/cross-rs/cross
+
+
       - name: Build
         run: |
           cd src/pairwriter_helper 
@@ -28,7 +42,7 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add -A 
-          git commit -m "compiled"
+          git commit -m "compiled" || echo "No changes to commit"
           git push -u origin HEAD:${{ matrix.os }}-prerelease
 
   merge:
@@ -46,4 +60,15 @@ jobs:
           git merge ubuntu-latest-prerelease || echo "No changes to merge"
           git merge macos-latest-prerelease || echo "No changes to merge"
           git merge windows-latest-prerelease || echo "No changes to merge"
-          git push origin releases
+          git push origin releases -f
+
+  remove-artifacts:
+    needs: merge
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove Merge Artifacts
+        run: |
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease
