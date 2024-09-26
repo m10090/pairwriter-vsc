@@ -27,7 +27,8 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add -A 
-          git push -u origin ${{ matrix.os }}-prerelease
+          git commit -m "compiled"
+          git push -u origin HEAD:${{ matrix.os }}-prerelease
 
   merge:
     runs-on: ubuntu-latest
