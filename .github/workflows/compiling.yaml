@@ -4,13 +4,13 @@ on:
       - main
     tags: 
       - release
-name: Pre-deploy Deploy Extension
-  
+
+name: deploy Extension Build and Release
+
 permissions:
   contents: write
 
 env:
-  CARGO_TERM_COLOR: always
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
@@ -20,27 +20,26 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: toolchain for macos
-        if : ${{ matrix.os == 'macos-latest' }}
+      - name: Set up macOS toolchain
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           rustup target add x86_64-apple-darwin
       
-      - name: toolchain for linux
-        if : ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Set up Linux toolchain
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           cargo install cross --git https://github.com/cross-rs/cross
 
-
-      - name: Build
+      - name: Build Extension
         run: |
           cd src/pairwriter_helper 
           npm install
           python3 os_specific_compile.py
 
-      - name: Add Changes
+      - name: Commit and Push Changes
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
@@ -48,14 +47,14 @@ jobs:
           git commit -m "compiled" || echo "No changes to commit"
           git push -u origin HEAD:${{ matrix.os }}-prerelease
 
-  merge:
+  release:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Merge Changes
+      - name: Merge Pre-release Branches
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
@@ -65,16 +64,29 @@ jobs:
           git merge origin/ubuntu-latest-prerelease
           git merge origin/macos-latest-prerelease
           git merge origin/windows-latest-prerelease
-          git push origin release -f
+          cd src/pairwriter_helper 
+          npm install 
+          npx tsc
+          cd ../..
+          npm install
+          npm run compile
+          
 
-  remove-artifacts:
-    needs: merge
+      - name: Publish Release
+        - uses: lannonbr/vsce-action@4.0.0
+        with:
+          args: "publish -p $VSCE_TOKEN"
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+
+  cleanup-prerelease:
+    needs: release
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Remove windows
+      - name: Delete Prerelease Branches
         run: |
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease || echo "failed to delete"
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease || echo "failed to delete"
           gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease || echo "failed to delete" 
-          echo "okay"
+          echo "Cleanup completed"

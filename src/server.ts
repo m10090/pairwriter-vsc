@@ -6,11 +6,15 @@ const startServer:(port: number, currentworkingdir: string) => PairwriterCmdObj 
 }) ();
 export async function pairwriterStartServer() {
   const port = await vscode.window.showInputBox({});
+  const username = await vscode.window.showInputBox({});
+  process.env.SERVER_USERNAME = username;
+
   // The code you place here will be executed every time your command is executed
   if (!port) {
     vscode.window.showErrorMessage("Please provide a port number");
     return;
   }
+
   const portNumber = +port;
 
   if (!vscode.workspace.workspaceFolders) {

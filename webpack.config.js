@@ -29,7 +29,7 @@ const extensionConfig = {
     extensions: [".ts", ".js",".node"],
 
     alias: {
-      '@pairwriter-helper': path.resolve(__dirname, './src/pairwriter_helper/.'),
+      '@pairwriter-helper': path.resolve(__dirname, 'src','pairwriter_helper','.'),
     },
 
   },
