@@ -1,8 +1,9 @@
 {
   "name": "pairwriter-vsc",
   "displayName": "pairwriter",
+  "publisher": "pairwriter",
   "description": ": The Cross-Platform Multi-Editor Pair Programming Extension is a versatile tool designed to enhance collaborative coding experiences across various development environments. This extension enables real-time collaboration between developers working in different editors or IDEs, fostering seamless pair programming sessions regardless of the tools used.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.93.0"
   },
