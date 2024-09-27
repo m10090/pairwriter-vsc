@@ -1,11 +1,11 @@
+name: Deploy Extension Build and Release
+
 on:
   push:
     branches:
       - main
     tags: 
       - release
-
-name: deploy Extension Build and Release
 
 permissions:
   contents: write
@@ -59,11 +59,11 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git fetch
-          git branch -r
           git checkout -B release
-          git merge origin/ubuntu-latest-prerelease
-          git merge origin/macos-latest-prerelease
-          git merge origin/windows-latest-prerelease
+          git merge origin/ubuntu-latest-prerelease || echo "No ubuntu changes to merge"
+          git merge origin/macos-latest-prerelease || echo "No macos changes to merge"
+          git merge origin/windows-latest-prerelease || echo "No windows changes to merge"
+          
           cd src/pairwriter_helper 
           npm install 
           npx tsc
@@ -72,9 +72,9 @@ jobs:
           npm run compile
 
       - name: Publish Release
-        - uses: lannonbr/vsce-action@4.0.0
+        uses: lannonbr/vsce-action@4.0.0
         with:
-          args: "publish -p $VSCE_TOKEN"
+          args: "publish -p ${{ secrets.VSCE_TOKEN }}"
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
@@ -85,7 +85,7 @@ jobs:
     steps:
       - name: Delete Prerelease Branches
         run: |
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease || echo "failed to delete"
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease || echo "failed to delete"
-          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease || echo "failed to delete" 
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/windows-latest-prerelease || echo "failed to delete windows branch"
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/macos-latest-prerelease || echo "failed to delete macos branch"
+          gh api -X DELETE /repos/m10090/pairwriter-vsc/git/refs/heads/ubuntu-latest-prerelease || echo "failed to delete ubuntu branch"
           echo "Cleanup completed"
