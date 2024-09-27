@@ -70,7 +70,6 @@ jobs:
           cd ../..
           npm install
           npm run compile
-          
 
       - name: Publish Release
         - uses: lannonbr/vsce-action@4.0.0
