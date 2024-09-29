@@ -88,4 +88,3 @@ function outsideEditHock(serverFunctions: PairwriterCmdObj) {
   };
   setTimeout(loop, 0);
 }
-asd
